@@ -6,7 +6,7 @@ $output = array();
 if (isset($_REQUEST['preferences']) && $_REQUEST['preferences'] != '') {
 	$user_preferences = json_decode($_REQUEST['preferences'], true);
 	
-	UserManager::getInstance()->setUserPreferences($user_preferences, $current_user_id);
+	UserItemManager::getInstance()->setUserPreferredItems($user_preferences, $current_user_id);
 	$output['status'] = 1;
 } else {
 	$output['status'] = 0;

@@ -14,7 +14,7 @@ if (isset($recommended_items)) {
 		foreach ($recommended_items as $recommended_item) {
 			if ($item['item_id'] == $recommended_item['item_id']) {
 				$output[] = $item;
-			}		
+			}	
 		}
 	}
 }

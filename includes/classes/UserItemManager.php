@@ -1,7 +1,7 @@
 <?php 
 
 final class UserItemManager {
-	const PREFERRED_ITEM_RATING_TRESHOLD = 1;
+	const PREFERRED_ITEM_RATING_TRESHOLD = 3;
 	const MAXIMUM_ITEM_RATING = 5;
 	const MINIMUM_ITEM_RATING = 1;
 	
@@ -49,8 +49,60 @@ final class UserItemManager {
 		return $output;
 	}
 	
+	public function setUserPreferredItems($user_preferences, $user_id) {
+		$item_fb_ids = $this->getAllItemFbIds();
+	
+		foreach ($user_preferences as $user_preference) {
+			if (in_array($user_preference['fb_id'], $item_fb_ids)) {
+				$item = $this->getItemByFbId($user_preference['fb_id']);
+			} else {
+				$item = array();
+				$item['item_fb_id'] = $user_preference['fb_id'];
+				$item['name'] = $user_preference['name'];
+				$item['address'] = $user_preference['location'];
+				$item['working_hours'] = $user_preference['working_hours'];
+				$item['type'] = $user_preference['type'];
+	
+				$item['item_id'] = $this->addItem($item);
+			}
+				
+			$this->addUserItemRating($user_id, $item['item_id'], UserItemManager::MAXIMUM_ITEM_RATING);
+		}
+	}
+	
 	public function addUserItemRating($user_id, $item_id, $rating) {
 		dbQuery("INSERT INTO user_item_rating(user_id,item_id,rating) VALUES($user_id, $item_id, $rating);", $user_id);
+		$this->updateItemRating($item_id);
+	}
+	
+	public function getUserItemRating($user_id, $item_id) {
+		$user_items = dbQuery("SELECT * FROM user_item_rating WHERE user_id=$user_id", $user_id);
+		
+		foreach ($user_items as $item) {
+			if ($item->item_id == $item_id) {
+				return $item->rating;
+			}
+		}
+		
+		return 0;
+	}
+	
+	public function updateItemRating($item_id) {
+		$item_ratings = ItemSimilarity::getInstance()->getItemRatings($item_id);
+		
+		$count = 0;
+		$sum = 0;
+		foreach ($item_ratings as $item_rating) {
+			$count++;
+			$sum += $item_rating['rating'];
+		}
+		if ($count > 0) {
+			$item_rating_avg = round($sum / $count, 1);
+		} else {
+			$item_rating_avg = 1;
+		}
+		
+		dbQuery("UPDATE item SET rating = $item_rating_avg, rating_count = $count WHERE item_id=$item_id", 0);
 	}
 	
 	public function getAllItemIds() {
@@ -81,13 +133,9 @@ final class UserItemManager {
 		
 		$temp = array();
 		foreach ($result as $item) {
-			$temp['item_id'] = $item->item_id;
-			$temp['item_fb_id'] = $item->item_fb_id;
-			$temp['name'] = $item->name;
-			$temp['address'] = $item->address;
-			$temp['working_hours'] = $item->working_hours;
-			$temp['type'] = $item->type;
-			
+			foreach ($item as $key => $value) {
+				$temp[$key] = $value;
+			}
 			$output[] = $temp;
 		}
 		
@@ -128,6 +176,36 @@ final class UserItemManager {
 		$item_id = mysql_insert_id();
 		
 		return $item_id;
+	}
+	
+	public function constructUserItemMatrix() {
+		$result = dbQuery("SELECT * FROM user_item_rating", 0);
+		$users = dbQuery("SELECT user_id FROM user", 0);
+		$items = dbQuery("SELECT item_id FROM item", 0);
+		
+		$ratings = array();
+		for ($i = 0; $i < count($users); $i++) {
+			for ($j = 0; $j < count($items); $j++) {
+				$ratings[$i][$j] = 0;
+			}
+		}
+		
+		foreach ($result as $r) {
+				$ratings[$r->user_id - 1][$r->item_id - 1] = $r->rating;
+		}
+		
+		echo "x  |  ";
+		for ($j = 0; $j < count($items); $j++) {
+			echo $items[$j]->item_id . " ";
+		}
+		echo "<br>";
+		for ($i = 0; $i < count($users); $i++) {
+			echo $users[$i]->user_id . "  |  ";
+			for ($j = 0; $j < count($items); $j++) {
+				echo $ratings[$i][$j] . "  ";
+			}
+			echo "<br>";
+		}
 	}
 }
 ?>

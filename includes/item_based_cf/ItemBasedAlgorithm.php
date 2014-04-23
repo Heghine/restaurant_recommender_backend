@@ -50,7 +50,7 @@ final class ItemBasedAlgorithm {
 		$temp = array();
 		foreach ($result as $item) {
 			if (in_array($item->first_item_id, $user_item_ids)) {
-				if (!in_array($item->second_item_id, $temp) && !in_array($item->second_item_id, $user_item_ids)) {
+				if (!in_array($item->second_item_id, $temp) && !in_array($item->second_item_id, $user_item_ids) && $item->similarity > 0) {
 					$output[] = array('item_id' => $item->second_item_id, 'similarity' => $item->similarity);
 					$temp[] = $item->second_item_id;
 					if ($config['print_enabled'] == 1) {
@@ -58,7 +58,7 @@ final class ItemBasedAlgorithm {
 					}
 				}
 			} elseif (in_array($item->second_item_id, $user_item_ids)) {
-				if (!in_array($item->first_item_id, $temp) && !in_array($item->first_item_id, $user_item_ids)) {
+				if (!in_array($item->first_item_id, $temp) && !in_array($item->first_item_id, $user_item_ids) && $item->similarity > 0) {
 					$output[] = array('item_id' => $item->first_item_id, 'similarity' => $item->similarity);
 					$temp[] = $item->first_item_id;
 					if ($config['print_enabled'] == 1) {
@@ -70,7 +70,7 @@ final class ItemBasedAlgorithm {
 		return $output;
 	}
 	
-	public function computeSimilarityToUserItems($user_id, $user_item_ids, $similar_items) {
+	public function computeSetSimilarityToUserItems($user_id, $user_item_ids, $similar_items) {
 		$output = array();
 		foreach ($similar_items as $similar_item) {
 			$sum = 0;
@@ -87,7 +87,7 @@ final class ItemBasedAlgorithm {
 	public function getTopNRecommendations($user_id, $user_item_ids) {
 		global $config;
 		$user_simimlar_items = $this->getSimilarItemsForUserItems($user_id, $user_item_ids);
-		$similar_item_set_similarity = $this->computeSimilarityToUserItems($user_id, $user_item_ids, $user_simimlar_items);
+		$similar_item_set_similarity = $this->computeSetSimilarityToUserItems($user_id, $user_item_ids, $user_simimlar_items);
 		
 		// TODO add sorting by set_similarity
 		if ($config['print_enabled'] == 1) {
@@ -101,24 +101,35 @@ final class ItemBasedAlgorithm {
 	}
 	
 	public function getItemRatingPrediction($item_id, $user_id) {
-		$user_item_ids = UserItemManager::getInstance()->getUserPreferredItemIds($user_id);
-		$user_items = UserItemManager::getInstance()->getUserPreferredItems($user_id);
+		global $config;
 		$similar_items = $this->getSimilarItemsForUserItems($user_id, array($item_id));
+		
+		if ($config['print_enabled'] == 1) {
+			echo "item_id = " . $item_id . " ; similar_items { ";
+			foreach ($similar_items as $i) {
+				echo $i['item_id'] . " , ";
+			}
+			echo "} <br>";
+		}
 		
 		$numerator = 0;
 		$denominator = 0;
-		foreach ($user_items as $user_item) {
-			foreach ($similar_items as $similar_item) {
-				if (in_array($similar_item['item_id'], $user_item_ids)) {
-					$numerator += $similar_item['similarity'] * $user_item['rating'];
-					$denominator += $similar_item['similarity'];
-				}
+		foreach ($similar_items as $similar_item) {
+			$rating = UserItemManager::getInstance()->getUserItemRating($user_id, $similar_item['item_id']); 
+			if ($rating > 0) {
+				$numerator += $similar_item['similarity'] * $rating;
+				$denominator += $similar_item['similarity'];
 			}
 		}
 		
-		echo "n = " . $numerator . " ; d = " .$denominator." ; n/d = ".$numerator /$denominator ;
-
-		return $numerator /$denominator;
+		
+		if ($denominator != 0) {
+			$rating = $numerator /$denominator;
+		} else {
+			$rating = 0;
+		}
+		
+		return round($rating, 1);
 	}
 }
 ?>
