@@ -1,6 +1,9 @@
 <?php 
 
 final class ItemBasedAlgorithm {
+	const RECOMMENDATION_TYPE_TOPN = 1;
+	const RECOMMENDATION_TYPE_PREDICTION = 2;
+	
 	protected static $_instance;
 	
 	private function __construct() {}

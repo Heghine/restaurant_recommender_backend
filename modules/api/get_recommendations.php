@@ -5,16 +5,25 @@ if ($config['print_enabled'] == 1) {
 	echo " --- get recommendations for user " . $current_user_id . " --------- <br>";
 }
 $output = array();
-$recommended_items = UserManager::getInstance()->getRecommendations($current_user_id);
 
-if (isset($recommended_items)) {
-	$all_items = UserItemManager::getInstance()->getAllItems();
+if (isset($_REQUEST['type'])) {
+	$type = $_REQUEST['type'];
 	
-	foreach ($all_items as $item) {
-		foreach ($recommended_items as $recommended_item) {
-			if ($item['item_id'] == $recommended_item['item_id']) {
-				$output[] = $item;
-			}	
+	if ($type == ItemBasedAlgorithm::RECOMMENDATION_TYPE_TOPN) {
+		$recommended_items = UserManager::getInstance()->getRecommendations($current_user_id);
+	} elseif ($type == ItemBasedAlgorithm::RECOMMENDATION_TYPE_PREDICT) {
+		
+	}
+	
+	if (isset($recommended_items)) {
+		$all_items = UserItemManager::getInstance()->getAllItems();
+	
+		foreach ($all_items as $item) {
+			foreach ($recommended_items as $recommended_item) {
+				if ($item['item_id'] == $recommended_item['item_id']) {
+					$output[] = $item;
+				}
+			}
 		}
 	}
 }

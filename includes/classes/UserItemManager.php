@@ -49,6 +49,20 @@ final class UserItemManager {
 		return $output;
 	}
 	
+	public function getUserNotRatedItems($user_id) {
+		$items = $this->getAllItemIds();
+		$user_preferred_items = $this->getUserPreferredItemIds($user_id);
+		
+		$output = array();
+		foreach ($items as $item) {
+			if (!in_array($item, $user_preferred_items)) {
+				$output[] = $item;
+			}
+		}
+		
+		return $output;
+	}
+	
 	public function setUserPreferredItems($user_preferences, $user_id) {
 		$item_fb_ids = $this->getAllItemFbIds();
 	

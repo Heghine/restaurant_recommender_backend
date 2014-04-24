@@ -1,6 +1,10 @@
 <?php 
 
 final class UserManager {
+	const MOOT_TYPE_COFFEE = 'coffee';
+	const MOOT_TYPE_DANCE = 'dance';
+	const MOOT_TYPE_SAD = 'sad';
+	const MOOT_TYPE_MUSIC = 'music';
 	
 	protected static $_instance;
 	
@@ -51,6 +55,30 @@ final class UserManager {
 		$result = ItemBasedAlgorithm::getInstance()->getTopNRecommendations($user_id, $user_item_ids);
 		
 		return $result;
+	}
+	
+	public function getCoffeeMoodRecommendations() {
+		$items = UserItemManager::getInstance()->getAllItems();
+		
+		$output = array();
+		foreach ($items as $item) {
+			$item_type = strtolower($item['type']);
+			if ($item_type == 'cafe' || strpos($item_type, 'cafe')) {
+				$output[] = $item;
+			}	
+		}
+		
+		return $output;
+	}
+	
+	public function getPredictionRecommendations($user_id) {
+		$items = UserItemManager::getInstance()->getUserNotRatedItems();
+		
+		$item_predictions = array();
+		foreach ($items as $item) {
+			$predicted_rating = ItemBasedAlgorithm::getInstance()->getItemRatingPrediction($item, $user_id);
+			$item_predictions[] =  array('item_id' => $item, 'predicted_rating' => $predicted_rating);
+		}
 	}
 }
 
