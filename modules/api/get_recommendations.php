@@ -11,8 +11,8 @@ if (isset($_REQUEST['type'])) {
 	
 	if ($type == ItemBasedAlgorithm::RECOMMENDATION_TYPE_TOPN) {
 		$recommended_items = UserManager::getInstance()->getRecommendations($current_user_id);
-	} elseif ($type == ItemBasedAlgorithm::RECOMMENDATION_TYPE_PREDICT) {
-		
+	} elseif ($type == ItemBasedAlgorithm::RECOMMENDATION_TYPE_PREDICTION) {
+		$recommended_items = UserManager::getInstance()->getPredictionRecommendations($current_user_id);
 	}
 	
 	if (isset($recommended_items)) {

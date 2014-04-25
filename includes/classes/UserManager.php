@@ -5,6 +5,7 @@ final class UserManager {
 	const MOOT_TYPE_DANCE = 'dance';
 	const MOOT_TYPE_SAD = 'sad';
 	const MOOT_TYPE_MUSIC = 'music';
+	const MOOT_TYPE_FOOD = 'food';
 	
 	protected static $_instance;
 	
@@ -57,28 +58,90 @@ final class UserManager {
 		return $result;
 	}
 	
+	public function getPredictionRecommendations($user_id) {
+		$items = UserItemManager::getInstance()->getUserNotRatedItems($user_id);
+		
+		$item_predictions = array();
+		foreach ($items as $item) {
+			$predicted_rating = ItemBasedAlgorithm::getInstance()->getItemRatingPrediction($item, $user_id);
+			if ($predicted_rating > 0) {
+				$item_predictions[] =  array('item_id' => $item, 'predicted_rating' => $predicted_rating);
+			}
+		}
+		
+		return $item_predictions;
+	}
+	
 	public function getCoffeeMoodRecommendations() {
 		$items = UserItemManager::getInstance()->getAllItems();
-		
+	
 		$output = array();
 		foreach ($items as $item) {
 			$item_type = strtolower($item['type']);
 			if ($item_type == 'cafe' || strpos($item_type, 'cafe')) {
 				$output[] = $item;
-			}	
+			}
+		}
+	
+		return $output;
+	}
+	
+	public function getSadMoodRecommendations() {
+		$items = UserItemManager::getInstance()->getAllItems();
+		
+		$output = array();
+		foreach ($items as $item) {
+			$item_type = strtolower($item['type']);
+			$item_name = strtolower($item['name']);
+			if ($item_type == 'pub' || strpos($item_type, 'pub') || strpos($item_name, 'pub')) {
+				$output[] = $item;
+			}
 		}
 		
 		return $output;
 	}
 	
-	public function getPredictionRecommendations($user_id) {
-		$items = UserItemManager::getInstance()->getUserNotRatedItems();
-		
-		$item_predictions = array();
+	public function getDanceMoodRecommendations() {
+		$items = UserItemManager::getInstance()->getAllItems();
+	
+		$output = array();
 		foreach ($items as $item) {
-			$predicted_rating = ItemBasedAlgorithm::getInstance()->getItemRatingPrediction($item, $user_id);
-			$item_predictions[] =  array('item_id' => $item, 'predicted_rating' => $predicted_rating);
+			$item_type = strtolower($item['type']);
+			$item_name = strtolower($item['name']);
+			if ($item_type == 'club' || strpos($item_type, 'club') || strpos($item_name, 'club')) {
+				$output[] = $item;
+			}
 		}
+	
+		return $output;
+	}
+	
+	public function getFoodMoodRecommendations() {
+		$items = UserItemManager::getInstance()->getAllItems();
+	
+		$output = array();
+		foreach ($items as $item) {
+			$item_type = strtolower($item['type']);
+			if ($item_type == 'food' || strpos($item_type, 'food') || strpos($item_type, 'burger')) {
+				$output[] = $item;
+			}
+		}
+	
+		return $output;
+	}
+	
+	public function getMusicMoodRecommendations() {
+		$items = UserItemManager::getInstance()->getAllItems();
+	
+		$output = array();
+		foreach ($items as $item) {
+			$item_type = strtolower($item['type']);
+			if ($item_type == 'food' || strpos($item_type, 'food') || strpos($item_type, 'burger')) {
+				$output[] = $item;
+			}
+		}
+	
+		return $output;
 	}
 }
 

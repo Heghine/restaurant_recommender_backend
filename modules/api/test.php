@@ -15,7 +15,7 @@ UserItemManager::getInstance()->constructUserItemMatrix();
 
 $items = UserItemManager::getInstance()->getUserNotRatedItems(1);
 foreach ($items as $item) {
-	echo "item = " . $item . " ; predicted_rating = " . ItemBasedAlgorithm::getInstance()->getItemRatingPrediction($item,1) . "<br>";
+	echo "itemmm = " . $item . " ; predicted_rating = " . ItemBasedAlgorithm::getInstance()->getItemRatingPrediction($item,1) . "<br>";
 }
 
 ?>
