@@ -221,5 +221,10 @@ final class UserItemManager {
 			echo "<br>";
 		}
 	}
+	
+	public function getItemReviews($item_id) {
+		$result = dbQuery("SELECT * FROM item_review WHERE item_id=$item_id", 0);
+		return $result;
+	}
 }
 ?>
