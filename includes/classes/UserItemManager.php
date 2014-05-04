@@ -167,6 +167,8 @@ final class UserItemManager {
 				$output['address'] = $r->address;
 				$output['working_hours'] = $r->working_hours;
 				$output['type'] = $r->type;
+				$output['rating'] = $r->rating;
+				$output['rating_count'] = $r->rating_count;
 				
 				break;
 			}
@@ -220,6 +222,8 @@ final class UserItemManager {
 			}
 			echo "<br>";
 		}
+		
+		return $ratings;
 	}
 	
 	public function getItemReviews($item_id) {

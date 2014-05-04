@@ -78,7 +78,13 @@ final class UserManager {
 		$output = array();
 		foreach ($items as $item) {
 			$item_type = strtolower($item['type']);
-			if ($item_type == 'cafe' || strpos($item_type, 'cafe')) {
+			$position = strpos($item_type, 'cafe');
+			if (gettype($position) == 'integer') {
+				$position = true;
+			} else {
+				$position = false;
+			}
+			if ($item_type == 'cafe' || $position) {
 				$output[] = $item;
 			}
 		}
@@ -122,7 +128,21 @@ final class UserManager {
 		$output = array();
 		foreach ($items as $item) {
 			$item_type = strtolower($item['type']);
-			if ($item_type == 'food' || strpos($item_type, 'food') || strpos($item_type, 'burger')) {
+			$restaurant_position = strpos($item_type, 'restaurant');
+			if (gettype($restaurant_position) == 'integer') {
+				$restaurant_position = true;
+			} else {
+				$restaurant_position = false;
+			}
+				
+			$food_position = strpos($item_type, 'food');
+			if (gettype($food_position) == 'integer') {
+				$food_position = true;
+			} else {
+				$food_position = false;
+			}
+				
+			if ($item_type == 'food' || $food_position || $restaurant_position) {
 				$output[] = $item;
 			}
 		}
@@ -136,7 +156,13 @@ final class UserManager {
 		$output = array();
 		foreach ($items as $item) {
 			$item_type = strtolower($item['type']);
-			if ($item_type == 'food' || strpos($item_type, 'food') || strpos($item_type, 'burger')) {
+			$club_position = strpos($item_type, 'club');
+			if (gettype($club_position) == 'integer') {
+				$club_position = true;
+			} else {
+				$club_position = false;
+			}
+			if ($item_type == 'club' || $club_position ) {
 				$output[] = $item;
 			}
 		}

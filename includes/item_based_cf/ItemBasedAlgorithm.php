@@ -57,7 +57,7 @@ final class ItemBasedAlgorithm {
 					$output[] = array('item_id' => $item->second_item_id, 'similarity' => $item->similarity);
 					$temp[] = $item->second_item_id;
 					if ($config['print_enabled'] == 1) {
-						echo "item = ". $item->second_item_id ." ; ";
+						echo "id = ". $item->second_item_id ." ; ";
 					}
 				}
 			} elseif (in_array($item->second_item_id, $user_item_ids)) {
@@ -65,7 +65,7 @@ final class ItemBasedAlgorithm {
 					$output[] = array('item_id' => $item->first_item_id, 'similarity' => $item->similarity);
 					$temp[] = $item->first_item_id;
 					if ($config['print_enabled'] == 1) {
-						echo "item = ". $item->first_item_id ." ; ";
+						echo "id = ". $item->first_item_id ." ; ";
 					}
 				}
 			}
@@ -108,7 +108,7 @@ final class ItemBasedAlgorithm {
 		$similar_items = $this->getSimilarItemsForUserItems($user_id, array($item_id));
 		
 		if ($config['print_enabled'] == 1) {
-			echo "item_id = " . $item_id . " ; similar_items { ";
+			echo "<br>item_id = " . $item_id . " ; similar_items { ";
 			foreach ($similar_items as $i) {
 				echo $i['item_id'] . " , ";
 			}
@@ -119,15 +119,15 @@ final class ItemBasedAlgorithm {
 		$denominator = 0;
 		foreach ($similar_items as $similar_item) {
 			$rating = UserItemManager::getInstance()->getUserItemRating($user_id, $similar_item['item_id']); 
+// 			echo "<br> user_id = ".$user_id." ; item_id = ".$similar_item['item_id']. " ; rating = ".$rating . " ; sim = ". $similar_item['similarity'];
 			if ($rating > 0) {
 				$numerator += $similar_item['similarity'] * $rating;
-				$denominator += $similar_item['similarity'];
+				$denominator += abs($similar_item['similarity']);
 			}
 		}
-		
-		
+// 		echo "<br>num = ".$numerator." ---- ".$denominator;
 		if ($denominator != 0) {
-			$rating = $numerator /$denominator;
+			$rating = $numerator / $denominator;
 		} else {
 			$rating = 0;
 		}
