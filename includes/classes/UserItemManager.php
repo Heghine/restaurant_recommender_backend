@@ -101,6 +101,12 @@ final class UserItemManager {
 		return 0;
 	}
 	
+	public function addItemReview($item_id, $user_id, $rating, $item_type, $review_text) {
+		$now = date('Y-m-d H:m:s');
+		dbQuery("INSERT INTO item_review(item_id, user_id, rating, item_type, review_text,date) 
+						VALUES($item_id, $user_id, $rating, '$item_type', '$review_text', '$now')", $user_id);
+	}
+	
 	public function updateItemRating($item_id) {
 		$item_ratings = ItemSimilarity::getInstance()->getItemRatings($item_id);
 		
