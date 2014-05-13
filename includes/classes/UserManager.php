@@ -47,11 +47,21 @@ final class UserManager {
 		return $output;
 	}
 	
+	public function getUserIdByFbId($user_fb_id) {
+		$user_id = 0;
+		$result = dbQuery("SELECT * FROM user WHERE user_fb_id=$user_fb_id", 0);
+		$result = $result[0];
+		
+		if (isset($result)) {
+			$user_id = $result->user_id;	
+		}
+		
+		return $user_id;
+	}
+	
 	public function getRecommendations($user_id) {
 		global $config;
-		if ($config['print_enabled'] == 1)
-			echo "user preferred items <br>";
-		$user_item_ids = UserItemManager::getInstance()->getUserPreferredItemIds($user_id);
+		$user_item_ids = UserItemManager::getInstance()->getUserRatedItemIds($user_id);
 		
 		$result = ItemBasedAlgorithm::getInstance()->getTopNRecommendations($user_id, $user_item_ids);
 		
@@ -59,7 +69,7 @@ final class UserManager {
 	}
 	
 	public function getPredictionRecommendations($user_id) {
-		$items = UserItemManager::getInstance()->getUserNotRatedItems($user_id);
+		$items = UserItemManager::getInstance()->getUserNotRatedItemIds($user_id);
 		
 		$item_predictions = array();
 		foreach ($items as $item) {

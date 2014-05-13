@@ -1,4 +1,0 @@
-<?php 
-ItemSimilarityManager::getInstance()->updateItemItemSimilarity();
-
-?>

@@ -40,8 +40,8 @@ final class ItemSimilarity {
 					$item_rating['user_id'] = $first_item_rating['user_id']; 
 					$item_rating['first_item_id'] = $first_item_rating['item_id'];
 					$item_rating['second_item_id'] = $second_item_rating['item_id'];
-					$item_rating['first_user_rating'] = $first_item_rating['rating'];
-					$item_rating['second_user_rating'] = $second_item_rating['rating'];
+					$item_rating['first_item_rating'] = $first_item_rating['rating'];
+					$item_rating['second_item_rating'] = $second_item_rating['rating'];
 					
 					$this->printObject($item_rating);
 					
@@ -60,16 +60,17 @@ final class ItemSimilarity {
 		$second_item_rating_avg = 0;
 		$count = 0;
 		foreach ($user_ratings as $user_rating) {
-			$first_item_rating_sum += $user_rating['first_user_rating'];
-			$second_item_rating_sum += $user_rating['second_user_rating'];
+			$first_item_rating_sum += $user_rating['first_item_rating'];
+			$second_item_rating_sum += $user_rating['second_item_rating'];
 			$count++;
 		}
 		if ($count != 0) {
 			$first_item_rating_avg = $first_item_rating_sum/$count;
 			$second_item_rating_avg = $second_item_rating_sum/$count;
 		}
+		
  		$output = array('first_item_average' => $first_item_rating_avg, 'second_item_average' => $second_item_rating_avg);
-
+ 		$this->printObject($output);
 		return $output;
 	}
 	
@@ -88,8 +89,8 @@ final class ItemSimilarity {
 			$first_item_sum = 0;
 			$second_item_sum = 0;
 			foreach ($user_ratings as $user_rating) {
-				$first_item_value = $user_rating['first_user_rating'] - $item_averages['first_item_average'];
-				$second_item_value = $user_rating['second_user_rating'] - $item_averages['second_item_average']; 
+				$first_item_value = $user_rating['first_item_rating'] - $item_averages['first_item_average'];
+				$second_item_value = $user_rating['second_item_rating'] - $item_averages['second_item_average']; 
 				$numerator += $first_item_value * $second_item_value; 
 				
 				$first_item_sum += $first_item_value * $first_item_value;

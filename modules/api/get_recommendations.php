@@ -1,9 +1,6 @@
 <?php 
 $current_user_id = UserManager::getInstance()->getCurrentUserId();
 
-if ($config['print_enabled'] == 1) {
-	echo " --- get recommendations for user " . $current_user_id . " --------- <br>";
-}
 $output = array();
 
 if (isset($_REQUEST['type'])) {

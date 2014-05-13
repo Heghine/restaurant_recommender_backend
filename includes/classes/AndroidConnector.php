@@ -1,19 +1,24 @@
 <?php 
 
 class AndroidConnector {
-	public $current_id;
-	
+
 	public function __construct() {}
 	
 	public function authorize() {
 		$user_id = 0;
-		
+				
 		if (isset($_REQUEST['user_id']) && $_REQUEST['user_id'] != 0) {
 			$user_id = $_REQUEST['user_id'];
-		} else {
-			$user_id = $this->addNewUser();
+		} else if (isset($_REQUEST['user_fb_id'])) {
+			$user_fb_id = $_REQUEST['user_fb_id'];
+			$user_id = UserManager::getInstance()->getUserIdByFbId($user_fb_id);
+		
+			if ($user_id == 0) {
+				$user_id = $this->addNewUser();
+			}
 		}
-		$this->current_id = $user_id;
+		
+		UserManager::getInstance()->setCurrentUserId($user_id);
 		
 		return $user_id;
 	}

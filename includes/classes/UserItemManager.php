@@ -19,7 +19,7 @@ final class UserItemManager {
 		return self::$_instance;
 	}
 	
-	public function getUserPreferredItemIds($user_id) {
+	public function getUserRatedItemIds($user_id) {
 		global $config;
 		$result = dbQuery("SELECT * FROM user_item_rating WHERE user_id=$user_id", $user_id);
 		
@@ -36,7 +36,7 @@ final class UserItemManager {
 		return $output;
 	}
 	
-	public function getUserPreferredItems($user_id) {
+	public function getUserRatedItems($user_id) {
 		$result = dbQuery("SELECT * FROM user_item_rating WHERE user_id=$user_id", $user_id);
 	
 		$output = array();
@@ -49,9 +49,9 @@ final class UserItemManager {
 		return $output;
 	}
 	
-	public function getUserNotRatedItems($user_id) {
+	public function getUserNotRatedItemIds($user_id) {
 		$items = $this->getAllItemIds();
-		$user_preferred_items = $this->getUserPreferredItemIds($user_id);
+		$user_preferred_items = $this->getUserRatedItemIds($user_id);
 		
 		$output = array();
 		foreach ($items as $item) {
@@ -123,6 +123,17 @@ final class UserItemManager {
 		}
 		
 		dbQuery("UPDATE item SET rating = $item_rating_avg, rating_count = $count WHERE item_id=$item_id", 0);
+	}
+	
+	public function getAllUserIds() {
+		$output = array();
+		$result = dbQuery("SELECT user_id FROM user", 0);
+	
+		foreach ($result as $user_id) {
+			$output[] = $user_id->user_id;
+		}
+	
+		return $output;
 	}
 	
 	public function getAllItemIds() {
@@ -200,10 +211,82 @@ final class UserItemManager {
 		return $item_id;
 	}
 	
-	public function constructUserItemMatrix() {
+	public function constructItemItemSimilarityMatrix($items) {
+		if (!isset($items))
+			$items = $this->getAllItemIds();
+		$result = dbQuery("SELECT * FROM item_item_similarity", 0);
+		
+		$ratings = array();
+		for ($i = 0; $i < count($items); $i++) {
+			for ($j = 0; $j < count($items); $j++) {
+				$ratings[$i][$j] = 0;
+			}
+		}
+		
+		foreach ($result as $r) {
+			$ratings[$r->first_item_id - 1][$r->second_item_id - 1] = $r->similarity;
+		}
+		echo "<table style='border:1px solid black;'>";
+		echo "<tr>";
+		echo "<td style='border:1px solid black;width=200px;'>x </td>";
+		for ($j = 0; $j < count($items); $j++) {
+			echo "<td style='border:1px solid black;width=200px;'>".$items[$j]. " </td>";
+		}
+		echo "</tr>";
+		
+		
+		for ($i = 0; $i < count($items); $i++) {
+			echo "<tr>";
+			echo "<td style='border:1px solid black;width=200px;'>".$items[$i]. " </td> ";
+			for ($j = 0; $j < count($items); $j++) {
+				echo "<td style='border:1px solid black;width=200px;'>".$ratings[$i][$j] . "</td>  ";
+			}
+			echo "<tr>";
+		}
+		echo "</table>";
+	}
+	
+	public function constructUserUserSimilarityMatrix($users) {
+		if(!isset($users)) 
+			$users = $this->getAllUserIds();
+		$result = dbQuery("SELECT * FROM user_user_similarity", 0);
+	
+		$ratings = array();
+		for ($i = 0; $i < count($users); $i++) {
+			for ($j = 0; $j < count($users); $j++) {
+				$ratings[$i][$j] = 0;
+			}
+		}
+	
+		foreach ($result as $r) {
+			$ratings[$r->first_user_id - 1][$r->second_user_id - 1] = $r->similarity;
+		}
+		echo "<table style='border:1px solid black;'>";
+		echo "<tr>";
+		echo "<td style='border:1px solid black;width=200px;'>x </td>";
+		for ($j = 0; $j < count($users); $j++) {
+			echo "<td style='border:1px solid black;width=200px;'>".$users[$j]. " </td>";
+		}
+		echo "</tr>";
+	
+	
+		for ($i = 0; $i < count($users); $i++) {
+			echo "<tr>";
+			echo "<td style='border:1px solid black;width=200px;'>".$users[$i]. " </td> ";
+			for ($j = 0; $j < count($users); $j++) {
+				echo "<td style='border:1px solid black;width=200px;'>".$ratings[$i][$j] . "</td>  ";
+			}
+			echo "<tr>";
+		}
+		echo "</table>";
+	}
+	
+	public function constructUserItemMatrix($users, $items) {
 		$result = dbQuery("SELECT * FROM user_item_rating", 0);
-		$users = dbQuery("SELECT user_id FROM user", 0);
-		$items = dbQuery("SELECT item_id FROM item", 0);
+		if (!isset($users))
+			$users = $this->getAllUserIds();
+		if (!isset($items))
+			$items = $this->getAllItemIds();
 		
 		$ratings = array();
 		for ($i = 0; $i < count($users); $i++) {
@@ -216,25 +299,96 @@ final class UserItemManager {
 				$ratings[$r->user_id - 1][$r->item_id - 1] = $r->rating;
 		}
 		
-		echo "x  |  ";
+		echo "<table style='border:1px solid black;'>";
+		echo "<tr>";
+		echo "<td style='border:1px solid black;width=200px;'>x </td>";
 		for ($j = 0; $j < count($items); $j++) {
-			echo $items[$j]->item_id . " ";
+			echo "<td style='border:1px solid black;width=200px;'>".$items[$j] . " </td>";
 		}
-		echo "<br>";
-		for ($i = 0; $i < count($users); $i++) {
-			echo $users[$i]->user_id . "  |  ";
-			for ($j = 0; $j < count($items); $j++) {
-				echo $ratings[$i][$j] . "  ";
-			}
-			echo "<br>";
-		}
+		echo "</tr>";
 		
+		for ($i = 0; $i < count($users); $i++) {
+			echo "<tr>";
+			echo "<td style='border:1px solid black;width=200px;'>".$users[$i]. " </td> ";
+			
+			for ($j = 0; $j < count($items); $j++) {
+				echo "<td style='border:1px solid black;width=200px;'>".$ratings[$i][$j] . "</td>  ";
+				
+			}
+			echo "<tr>";
+		}
+		echo "</table>";
 		return $ratings;
 	}
 	
 	public function getItemReviews($item_id) {
 		$result = dbQuery("SELECT * FROM item_review WHERE item_id=$item_id", 0);
 		return $result;
+	}
+	
+	public function getRelevantItemIds($item_ids) {
+		if (!isset($item_ids))
+			$item_ids = $this->getAllItemIds();
+		$result = dbQuery("SELECT * FROM user_item_rating", 0);
+		$output = array();
+		
+		foreach ($item_ids as $item_id) {
+			$sum = 0;
+			$count = 0;
+			foreach ($result as $r) {
+				if ($item_id == $r->item_id) {
+					$sum += $r->rating;
+					$count++;
+				}
+			} 
+			if ($count > 0) {
+				$average = $sum / $count;
+			} else {
+				$average = 0;
+			}
+			
+			if ($average > 3.5) {
+				$output[] = $item_id;
+			}
+		}
+		
+		return $output;
+	}
+	
+	public function generateUserItemRatings($sparsity, $user_count, $item_count) {
+		dbQuery("DROP TABLE user_item_rating", 0);
+		dbQuery("CREATE TABLE `user_item_rating` (
+				  `user_id` int(11) NOT NULL,
+				  `item_id` int(11) NOT NULL,
+				  `rating` int(1) NOT NULL,
+				  PRIMARY KEY (`user_id`,`item_id`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8", 0);
+		
+		$query = "INSERT INTO `user_item_rating`(`user_id`, `item_id`, `rating`) VALUES";
+		$done = array();
+		$i = 0;
+		do {
+			$found = false;
+			$user_id = rand(1, $user_count);
+			$item_id = rand(1, $item_count);
+			$rating = rand(1, 5);
+			foreach ($done as $d) {
+				if ($d['item_id'] == $item_id && $d['user_id'] == $user_id) {
+					$found = true;
+					break;
+				}
+			}
+			if (!$found) {
+				$done[] = array('item_id' => $item_id, 'user_id' => $user_id);
+				$query .= "('$user_id', '$item_id', '$rating'),";
+				$i++;
+			}
+		} while($i != $sparsity);
+		
+		$query = substr($query, 0, strlen($query) - 1);
+		$query .= ";";
+		echo $query;
+		dbQuery($query, 0);
 	}
 }
 ?>
