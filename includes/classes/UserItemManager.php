@@ -128,31 +128,34 @@ final class UserItemManager {
 	public function getAllUserIds() {
 		$output = array();
 		$result = dbQuery("SELECT user_id FROM user", 0);
-	
-		foreach ($result as $user_id) {
-			$output[] = $user_id->user_id;
-		}
-	
+		if (isset($result)) {
+			foreach ($result as $user_id) {
+				$output[] = $user_id->user_id;
+			}
+		}	
+		
 		return $output;
 	}
 	
 	public function getAllItemIds() {
 		$output = array();
 		$result = dbQuery("SELECT item_id FROM item", 0);
-	
-		foreach ($result as $item_id) {
-			$output[] = $item_id->item_id;
+		if (isset($result)) {
+			foreach ($result as $item_id) {
+				$output[] = $item_id->item_id;
+			}
 		}
-	
+		
 		return $output;
 	}
 	
 	public function getAllItemFbIds() {
 		$output = array();
 		$result = dbQuery("SELECT item_fb_id FROM item", 0);
-		
-		foreach ($result as $item_id) {
-			$output[] = $item_id->item_fb_id;
+		if (isset($result)) {
+			foreach ($result as $item_id) {
+				$output[] = $item_id->item_fb_id;
+			}
 		}
 		
 		return $output;

@@ -18,6 +18,7 @@ if (isset($_REQUEST['type'])) {
 		foreach ($all_items as $item) {
 			foreach ($recommended_items as $recommended_item) {
 				if ($item['item_id'] == $recommended_item['item_id']) {
+					$item['predicted_rating'] = $recommended_item['predicted_rating'];
 					$output[] = $item;
 				}
 			}

@@ -19,6 +19,6 @@ $config['db'] = array(
 		'host' => 'localhost',
 		'user' => 'root',
 		'password' => 'root',
-		'name' => 'restaurant_recommender'
+		'name' => 'restaurant_recommender_1'
 );
 ?>
