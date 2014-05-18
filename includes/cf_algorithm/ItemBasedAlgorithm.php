@@ -78,7 +78,6 @@ final class ItemBasedAlgorithm {
 		foreach ($similar_items as $similar_item) {
 			$sum = 0;
 			foreach ($user_item_ids as $user_item) {
-// 				$similarity = ItemSimilarityManager::getInstance()->getItemItemSimilarity($similar_item, $user_item);
 				$sum += $similar_item['similarity'];
 			}
 			$output[] = array('item_id' => $similar_item['item_id'], 'set_similarity' => $sum);
@@ -118,7 +117,6 @@ final class ItemBasedAlgorithm {
 		$denominator = 0;
 		foreach ($user_items as $user_item) {
 			$similarity = ItemSimilarityManager::getInstance()->getItemItemSimilarity($item_id, $user_item['item_id']); 
-// 			echo "<br> user_id = ".$user_id." ; item_id = ".$user_item['item_id']. " ; rating = ".$user_item['rating'] . " ; sim = ". $similarity;
 			if ($user_item['item_id'] != $item_id && $similarity >= 0) {
 				$numerator += $similarity * $user_item['rating'];
 				$denominator += abs($similarity);
@@ -130,7 +128,6 @@ final class ItemBasedAlgorithm {
 		} else {
 			$rating = 0;
 		}
-// 		echo "<br>num = ".$numerator." ---- den = ".$denominator . " ; r = " .$rating."<br><br>";
 		return round($rating, 1);
 	}
 }
